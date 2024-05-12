@@ -1,6 +1,6 @@
 import argparse # to parse command-line arguments
 import collections #container types
-import configParser # read and write microsoft's INI format
+import configparser # read and write microsoft's INI format
 from datetime import datetime
 import grp, pwd
 from fnmatch import fnmatch # filename matching (to match .gitignore)
@@ -13,11 +13,11 @@ import zlib
 
 argparser = argparse.ArgumentParser(description="The stupidest content tracker")
 
-argsubparsers = argparser.add_subparser(title="Commands", dest="command")
-argsubparser.required = True
+argsubparsers = argparser.add_subparsers(title="Commands", dest="command")
+argsubparsers.required = True
 
 def main(argv=sys.argv[1:]):
-    args = arparser.parse_args(argv)
+    args = argparser.parse_args(argv)
     match args.command:
         case "add" : cmd_add(args)
         case "cat-file" : cmd_cat_file(args)
@@ -93,16 +93,16 @@ def repo_dir(repo, *path, mkdir=False):
 
     else: return None
 
-def create_repo(path):
+def repo_create(path):
     """create a new repository at path"""
     
-    repo = GitRepository(path, force=True)
+    repo = GitRepository(path, True)
 
     # First, we make sure the path either doesn't exist or is an empty dir.
     if os.path.exists(repo.worktree):
         if not os.path.isdir(repo.worktree):
             raise Exception("%s is not a directory" % path)
-        if not os.path.exists(repo.gitdir) and os.path.listdir(repo.gitdir):
+        if os.path.exists(repo.gitdir) and os.listdir(repo.gitdir):
             raise Exception("%s is not empty" % path)
     else:
         os.makedirs(repo.worktree)
